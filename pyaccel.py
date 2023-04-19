@@ -130,6 +130,7 @@ class InitilazeTransportLine ( object ):
         elif MomentumColorScale == True and realisticPlot == False:
             plt.scatter(self.V[0,:],self.V[2,:], s = 1.0, c = self.V[5,:], cmap='jet')
         else:
+            plt.gca().set_facecolor(plt.get_cmap('gray')(0))
             plt.hist2d(self.V[0,:], self.V[2,:], bins=(100, 100), range = [[-Rscale, Rscale], [-Rscale, Rscale]],
                        norm=mpl.colors.LogNorm(), cmap=mpl.cm.gray)
         plt.axis('equal')
@@ -173,16 +174,43 @@ class InitilazeTransportLine ( object ):
         T[0,0,0] = np.cos(BendingAngle)
         T[0,1,0] = BendingRadius*np.sin(BendingAngle)
         T[0,5,0] = BendingRadius*(1-np.cos(BendingAngle))
+        T[1,0,0] = -1*np.sin(BendingAngle)/BendingRadius
         T[1,1,0] = np.cos(BendingAngle)
-        T[1,1,0] = -1*np.sin(BendingAngle)/BendingRadius
         T[1,5,0] = np.sin(BendingAngle)
         T[2,3,0] = BendingAngle*BendingRadius
         self.M = np.append(self.M,T,axis=2)
         
+    def AddBendingMagnetY(self, BendingRadius, BendingAngle ):
+        self.Nelement = np.append(self.Nelement, self.Nelement[-1]+1)
+        self.Name_element.append('Bending magnet in Y')
+        T = np.zeros((6,6,1))
+        T[:,:,0] = np.eye(6)
+        T[0,1,0] = BendingAngle*BendingRadius
+        T[2,2,0] = np.cos(BendingAngle)
+        T[2,3,0] = BendingRadius*np.sin(BendingAngle)
+        T[2,5,0] = BendingRadius*(1-np.cos(BendingAngle))
+        T[3,0,0] = -1*np.sin(BendingAngle)/BendingRadius
+        T[3,3,0] = np.cos(BendingAngle)
+        T[3,5,0] = np.sin(BendingAngle)
+        self.M = np.append(self.M,T,axis=2)
         
+    def PoleFaceRotationX(self, BendingRadius, Angle):
+        f = BendingRadius/np.tan(Angle)
+        self.Nelement = np.append(self.Nelement, self.Nelement[-1]+1)
+        self.Name_element.append('Pole Face Rotation X')
+        T = np.zeros((6,6,1))
+        T[:,:,0] = np.eye(6)
+        T[1,0,0] = -1/f
+        self.M = np.append(self.M,T,axis=2)
         
-        
-        
+    def PoleFaceRotationY(self, BendingRadius, Angle):
+        f = BendingRadius/np.tan(Angle)
+        self.Nelement = np.append(self.Nelement, self.Nelement[-1]+1)
+        self.Name_element.append('Pole Face Rotation Y')
+        T = np.zeros((6,6,1))
+        T[:,:,0] = np.eye(6)
+        T[3,2,0] = -1/f
+        self.M = np.append(self.M,T,axis=2)
         
         
         
